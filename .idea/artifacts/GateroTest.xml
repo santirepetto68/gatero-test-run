@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="GateroTest">
+    <output-path>$USER_HOME$/OSBot/Scripts</output-path>
+    <root id="archive" name="GateroTest.jar">
+      <element id="module-output" name="TestRun" />
+    </root>
+  </artifact>
+</component>
