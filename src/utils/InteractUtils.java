@@ -1,6 +1,6 @@
 package utils;
 
-import library.Sleep;
+import framework.Sleep;
 import main.GateroTestRun;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.model.RS2Object;
@@ -11,17 +11,33 @@ public class InteractUtils {
 
     public static boolean interactObject(GateroTestRun script, String name, String action, boolean mining) {
 
+        while(script.myPlayer().isAnimating() || script.myPlayer().isMoving()) {
+            Sleep.sleepUntil(() -> false, script.random(500, 800));
+            script.log("Still actioning...");
+        }
 
-        RS2Object object = script.objects.closest(name);
+        RS2Object object;
+
+        if (script.getNextPos() != null && !script.myPlayer().isAnimating() && mining) {
+            object = script.getObjects().closest(obj ->
+                    obj.getName().equals(name) && obj.getPosition().distance(script.getNextPos()) == 0
+            );
+            script.log("Recall");
+
+        } else {
+            object = script.objects.closest(name);
+        }
 
         if (object == null) {
+            script.log("Forgetting");
+            script.setNextPos(null);
             return false;
         }
 
         if (script.myPlayer().isMoving()) {
             script.log("interactObject.isMoving");
             Sleep.sleepUntil(() -> false, script.random(500, 1500));
-            if(object.exists()) {
+            if(object.exists() && script.myPlayer().isMoving()) {
                 if (script.getMap().getDestination().distance(object.getPosition()) == 0) {
                     script.log("interactObject.Waiting");
                     // interacted with the object successfully, so wait
@@ -40,7 +56,7 @@ public class InteractUtils {
                     int timeOut = mining ? MiningUtils.calculateMiningDelay(script) : script.random(2521,3478);
 
 
-                    script.log(String.format("Mining delay: %d", timeOut));
+                    script.log(String.format("Action delay: %d", timeOut));
                     int randomWait = script.random(1, 10);
                     if(script.isFatigueActive() || randomWait <= 2) {
                         Sleep.sleepUntil(() -> false, timeOut);
@@ -49,10 +65,14 @@ public class InteractUtils {
                     }
                     if (script.myPlayer().isAnimating()) {
                         if (!script.getInventory().isFull()) {
-                            RS2Object next = script.getObjects().closest(name);
-                            if (next != null) {
-                                script.setNextPos(next.getPosition());
-                                next.hover();
+                            // Find the next closest actionObj position
+                            RS2Object nextActionObject = script.getObjects().closest(obj ->
+                                    obj.getName().equals(name) && obj.getPosition().distance(oldPos) > 0
+                            );
+
+                            if (nextActionObject != null && randomWait < script.random(2, 5)) {
+                                script.setNextPos(nextActionObject.getPosition());
+                                nextActionObject.hover();
                             }
                         }
                         Sleep.sleepUntil(() -> !object.exists() || script.getInventory().isFull(), 50000);

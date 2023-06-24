@@ -6,12 +6,14 @@ import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
 import utils.*;
-import library.*;
+import framework.*;
 
 import java.io.IOException;
 
 @ScriptManifest(author = "Gatero", name = "Gatero Test", version = 1.0, info = "", logo = "")
 public class GateroTestRun extends Script {
+
+    private final AsyncThread asyncThread = new AsyncThread(this);
 
     // Setters to keep track on current states
     private int triedCamera;
@@ -107,7 +109,7 @@ public class GateroTestRun extends Script {
             BankUtils.walkAndBankFalador(this);
         } else {
 
-            MiningUtils.mineIronInGuild(this);
+            MiningUtils.mineOreInGuild(this);
         }
         //sleep(calculateMiningDelay()); // Add a random delay before the next action
         return 0;
@@ -149,13 +151,22 @@ public class GateroTestRun extends Script {
         } catch (IOException e) {
             log(e);
         }
+
+        asyncThread.start();
         // Additional setup and configuration
     }
 
     @Override
     public void onExit() {
         // Cleanup tasks
+
         log("Bot exiting...");
+        asyncThread.running = false;
+        try {
+            asyncThread.join();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // Additional cleanup and final actions
     }
 }

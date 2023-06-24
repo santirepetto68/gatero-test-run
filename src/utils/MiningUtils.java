@@ -11,9 +11,9 @@ public class MiningUtils {
 
     private static final Area miningGuildArea = new Area(3025, 9730, 3059, 9750); // Mining Guild area coordinates
 
-    public static void mineIronInGuild(GateroTestRun script) throws InterruptedException {
+    public static void mineOreInGuild(GateroTestRun script) throws InterruptedException {
         if (miningGuildArea.contains(script.myPosition())) {
-            InteractUtils.interactObject(script, coalOreRocks, "Mine", true);
+            InteractUtils.interactObject(script, ironOreRocks, "Mine", true);
 
             if (script.inventory.isFull()) {
                 script.log("mineIron.bank");
@@ -21,7 +21,7 @@ public class MiningUtils {
                 script.sleep(script.random(500, 1500)); // Add a delay before attempting to bank again
             }
         } else {
-            walkToMiningGuildCoal(script);
+            walkToMiningGuildIron(script);
         }
     }
 
@@ -47,10 +47,15 @@ public class MiningUtils {
         double miningSpeedModifier = 1.0 + (miningLevel / 100.0); // Mining speed modifier based on mining level
 
         // Calculate the accurate mining time based on mining level and randomize it slightly
-        int miningTime = (int) (baseTime * miningSpeedModifier * script.random(63, 98));
+        int miningTime = (int) (baseTime * miningSpeedModifier * script.random(30, 175));
+
+
+        if (script.getLastFatigueTime() == 0) {
+            long currentTime = System.currentTimeMillis();
+            script.setLastFatigueTime(currentTime);
 
         // Check if it's a fatigue period
-        if (script.isFatigueActive()) {
+        } else if (script.isFatigueActive()) {
             script.log(String.format("Fatigue mode: true - End: %d", script.getFatigueEndTime()));
             // Check if fatigue period has ended
             long currentTime = System.currentTimeMillis();
