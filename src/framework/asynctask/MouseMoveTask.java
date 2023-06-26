@@ -6,15 +6,18 @@ import main.GateroTestRun;
 public class MouseMoveTask extends AsyncTask {
 
     public MouseMoveTask(GateroTestRun miner) {
-        super(miner, 25, .97);
+        super(miner, 60, .97);
     }
 
     @Override
     public void execute() {
         try {
-            getMiner().getMouse().moveOutsideScreen();
+            if(getScript().getMouse().isOnScreen()){
+                getScript().getMouse().moveOutsideScreen();
+                getScript().log("Mouse move out");
+            }
         } catch (Exception e) {
-            getMiner().log(e);
+            getScript().log(e);
         }
     }
 

@@ -13,10 +13,16 @@ public class CameraMoveTask extends AsyncTask {
     @Override
     public void execute() {
         try {
-            getMiner().getCamera().movePitch(MethodProvider.random(22, 67));
-            getMiner().getCamera().moveYaw(MethodProvider.random(0, 360));
+            if(getScript().getMouse().isOnScreen()) {
+                getScript().log("Camera move");
+                getScript().getCamera().movePitch(MethodProvider.random(22, 67));
+                getScript().getCamera().moveYaw(MethodProvider.random(0, 360));
+            } else {
+                getScript().log("Tried camera move but mouse out of screen");
+            }
+
         } catch (Exception e) {
-            getMiner().log(e);
+            getScript().log(e);
         }
     }
 

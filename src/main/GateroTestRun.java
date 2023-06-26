@@ -1,6 +1,8 @@
 package main;
 
 
+import org.osbot.B;
+import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
@@ -13,96 +15,42 @@ import java.io.IOException;
 @ScriptManifest(author = "Gatero", name = "Gatero Test", version = 1.0, info = "", logo = "")
 public class GateroTestRun extends Script {
 
-    private final AsyncThread asyncThread = new AsyncThread(this);
+    public final AsyncThread asyncThread = new AsyncThread(this);
 
     // Setters to keep track on current states
     private int triedCamera;
     private Position nextPos;
 
     private CustomMouse customMouse;
-    public void setNextPos(Position nextPosIn) {
-        nextPos = nextPosIn;
-    }
 
-    public Position getNextPos() {
-        return nextPos;
-    }
+    private long afkModeTime = System.currentTimeMillis();
 
-    public void setTriedCamera(int triedCameraIn) {
-        triedCamera = triedCameraIn;
-    }
+    private boolean isIdleFisher = false;
+    private boolean isIdleWoodBot = false;
 
-    public int getTriedCamera() {
-        return triedCamera;
-    }
-
-    private long lastFatigueTime = 0; // Last time when fatigue was applied
-    private int fatigueInterval = random(477645, 1215182); // Interval between fatigue periods in milliseconds
-    private int fatigueDurationMin = 58471; // Minimum duration of fatigue in milliseconds
-    private int fatigueDurationMax = 238528; // Maximum duration of fatigue in milliseconds
-
-    private int fatigueDelayMin = 53; // Minimum delay to add during fatigue in milliseconds
-    private int fatigueDelayMax = 754; // Maximum delay to add during fatigue in milliseconds
-
-    private boolean isFatigueActive; // Flag to indicate if fatigue is currently active
-    private long fatigueEndTime; // Time when the current fatigue period ends
-
-    public int getFatigueDelayMin() {
-        return fatigueDelayMin;
-    }
-
-    public int getFatigueDelayMax() {
-        return fatigueDelayMax;
-    }
-    public long getLastFatigueTime() {
-        return lastFatigueTime;
-    }
-
-    public void setLastFatigueTime(long lastFatigueTime) {
-        this.lastFatigueTime = lastFatigueTime;
-    }
-
-    public int getFatigueInterval() {
-        return fatigueInterval;
-    }
-
-    public int getFatigueDurationMin() {
-        return fatigueDurationMin;
-    }
-
-    public int getFatigueDurationMax() {
-        return fatigueDurationMax;
-    }
-
-    public boolean isFatigueActive() {
-        return isFatigueActive;
-    }
-
-    public void setFatigueActive(boolean fatigueActive) {
-        isFatigueActive = fatigueActive;
-    }
-
-    public long getFatigueEndTime() {
-        return fatigueEndTime;
-    }
-
-    public void setFatigueEndTime(long fatigueEndTime) {
-        this.fatigueEndTime = fatigueEndTime;
-    }
-
-    // Update the lastFatigueTime variable when applying fatigue
-    private void applyFatigue() {
-        lastFatigueTime = System.currentTimeMillis();
-    }
 
     @Override
     public int onLoop() throws InterruptedException {
-        Position currentPosition = myPosition();
-        int currentX = currentPosition.getX();
-        int currentY = currentPosition.getY();
-        int currentZ = currentPosition.getZ();
 
-        //log(String.format("Bot started! " + currentX + "-" + currentY + "-" + currentZ));
+        if(afkModeTime - System.currentTimeMillis() >= random(720000, 900000) ) {
+            performAFK();
+            afkModeTime = System.currentTimeMillis();
+        }
+
+        // Idle fisher
+        if (isIdleFisher) {
+            BarbarianFisher.idlePowerFisher(this);
+            return 0;
+        }
+
+        // Idle woodcutter
+        if (isIdleWoodBot){
+            Sleep.sleepUntil(() -> false, random(100, 5000));
+            WoodcuttingUtils.idleWoodCutter(this);
+
+            return 0;
+        }
+
 
         if (inventory.isFull()) {
             log("Inventory Full");
@@ -131,8 +79,6 @@ public class GateroTestRun extends Script {
 
     @Override
     public void onStart() throws InterruptedException {
-        // Initialization tasks
-        log("Bot started!");
 
         // Get the player coordinates as soon as the bot starts
         Position currentPosition = myPosition();
@@ -154,6 +100,18 @@ public class GateroTestRun extends Script {
 
         asyncThread.start();
         // Additional setup and configuration
+
+        if(isIdleWoodBot) {
+            BotState.setFirstPlayerPosition(currentPosition);
+
+            log("Saving closest bank...");
+            BotState.setClosestBankArea(Bank.closestTo(currentPosition, this));
+            log("Saving closest finished...");
+        }
+
+        // Initialization tasks
+        log("Bot started!");
+
     }
 
     @Override

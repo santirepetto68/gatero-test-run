@@ -1,6 +1,8 @@
 package framework;
 
+import main.GateroTestRun;
 import org.osbot.rs07.api.map.Area;
+import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.map.constants.Banks;
 import org.osbot.rs07.api.model.Entity;
 
@@ -18,7 +20,7 @@ public enum Bank {
     FALADOR_WEST(Banks.FALADOR_WEST),
     VARROCK_EAST(Banks.VARROCK_EAST),
     VARROCK_WEST(Banks.VARROCK_WEST),
-    GRAND_EXCHANGE(new Area(3160, 3485, 3169, 3494)),
+    //GRAND_EXCHANGE(new Area(3160, 3485, 3169, 3494)),
     SEERS(Banks.CAMELOT),
     CATHERBY(Banks.CATHERBY),
     EDGEVILLE(Banks.EDGEVILLE),
@@ -39,13 +41,15 @@ public enum Bank {
         this.area = area;
     }
 
-    public static Area closestTo(Entity e) {
+    public static Area closestTo(Position currentPos, GateroTestRun script) {
         HashMap<Bank, Integer> distMap = new HashMap<Bank, Integer>();
         for (Bank b : Bank.values()) {
-            distMap.put(b, e.getPosition().distance(b.area.getRandomPosition()));
+            distMap.put(b, currentPos.distance(b.area.getRandomPosition()));
         }
         HashMap<Integer, Bank> distMapSorted = sortByDistance(distMap);
         Area cBank = distMapSorted.values().toArray(new Bank[Bank.values().length])[0].area;
+        script.log("Area encontrada: " + distMapSorted.values().toArray(new Bank[Bank.values().length])[0].name());
+
         return cBank;
     }
 

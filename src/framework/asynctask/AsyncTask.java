@@ -6,13 +6,13 @@ import org.osbot.rs07.script.MethodProvider;
 
 public abstract class AsyncTask implements Runnable {
 
-    private final GateroTestRun miner;
+    private final GateroTestRun script;
     private final int secondsToWait;
     private final double threshold;
     private long lastActivated;
 
-    public AsyncTask(GateroTestRun miner, int secondsToWait, double threshold) {
-        this.miner = miner;
+    public AsyncTask(GateroTestRun script, int secondsToWait, double threshold) {
+        this.script = script;
         this.secondsToWait = secondsToWait;
         this.threshold = threshold;
         this.lastActivated = System.currentTimeMillis();
@@ -35,8 +35,8 @@ public abstract class AsyncTask implements Runnable {
 
     public abstract void execute();
 
-    public GateroTestRun getMiner() {
-        return miner;
+    public GateroTestRun getScript() {
+        return script;
     }
 
     public int getSecondsToWait() {

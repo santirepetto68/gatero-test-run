@@ -7,7 +7,7 @@ import main.GateroTestRun;
 
 public class AsyncThread extends Thread {
 
-    private final AsyncTask[] asyncTasks;
+    public final AsyncTask[] asyncTasks;
     public boolean running = true;
 
     public AsyncThread(GateroTestRun miner) {
