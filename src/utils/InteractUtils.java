@@ -15,9 +15,11 @@ public class InteractUtils {
 
     public static boolean interactObject(GateroTestRun script, String name, String action, boolean mining) {
 
-        while(script.myPlayer().isAnimating() || script.myPlayer().isMoving()) {
+        if (script.myPlayer().isAnimating()) {
             Sleep.sleepUntil(() -> false, script.random(500, 800));
             script.log("Still actioning...");
+
+            return true;
         }
 
         RS2Object object;
@@ -27,9 +29,17 @@ public class InteractUtils {
                     obj.getName().equals(name) && obj.getPosition().distance(BotState.getNextPos()) == 0
             );
             script.log("Recall");
+            BotState.setNextPos(null);
 
         } else {
-            object = script.objects.closest(name);
+            if(mining) {
+                object = script.objects.closest(targetObject -> targetObject.getName().equals(name) && MiningUtils.miningGuildArea.contains(targetObject.getPosition()));
+
+
+            } else {
+                object = script.objects.closest(name);
+            }
+
         }
 
         if (object == null) {
@@ -40,10 +50,10 @@ public class InteractUtils {
             } else {
                 script.log("Object no longer exists");
             }
-            Sleep.sleepUntil(() -> false, script.random(300, 800));
+            Sleep.sleepUntil(() -> false, script.random(135, 450));
             return false;
         }
-
+        script.log("Target Pos X:" + object.getPosition().getX() + " Y: " + object.getPosition().getY());
         if (script.myPlayer().isMoving()) {
             script.log("interactObject.isMoving");
             Sleep.sleepUntil(() -> false, script.random(500, 1500));
@@ -51,13 +61,13 @@ public class InteractUtils {
                 if (script.getMap().getDestination().distance(object.getPosition()) == 0) {
                     script.log("interactObject.Waiting");
                     // interacted with the object successfully, so wait
-                    return true;
                 }
             }
-            return false;
+            return true;
         }
         if (object.isVisible()) {
             EntityDestination ent = new EntityDestination(script.getBot(), object);
+
             if (ent.isVisible()) {
                 Position oldPos = object.getPosition();
                 script.log("interactObject.isVisible.interact");
@@ -69,27 +79,32 @@ public class InteractUtils {
 
                     script.log(String.format("Action delay: %d", timeOut));
                     int randomWait = script.random(1, 10);
-                    if(BotState.isFatigueActive() || randomWait <= 2) {
-                        if(randomWait <= 2) script.log("Random delay...");
+                    if(BotState.isFatigueActive() || randomWait <= 1) {
+                        if(randomWait <= 1) script.log("Random delay...");
                         Sleep.sleepUntil(() -> false, timeOut);
                     } else {
-                        Sleep.sleepUntil(() -> script.myPlayer().isAnimating() || !object.exists(), timeOut);
+                        Sleep.sleepUntil(() ->  !object.exists() || script.myPlayer().isAnimating(), timeOut);
                     }
                     if (script.myPlayer().isAnimating()) {
                         if (!script.getInventory().isFull()) {
                             // Find the next closest actionObj position
                             RS2Object nextActionObject = script.getObjects().closest(obj ->
-                                    obj.getName().equals(name) && obj.getPosition().distance(oldPos) > 0
+                                    // Using conditional line to prevent duplicating this function for custom mining logic
+                                    mining ?
+                                            obj.getName().equals(name) && obj.getPosition().distance(oldPos) > 0 && MiningUtils.miningGuildArea.contains(obj.getPosition()):
+                                            obj.getName().equals(name) && obj.getPosition().distance(oldPos) > 0
                             );
 
-                            if (nextActionObject != null && randomWait < script.random(2, 5)) {
+                            if (nextActionObject != null && randomWait <= script.random(1, 7)) {
                                 BotState.setNextPos(nextActionObject.getPosition());
                                 nextActionObject.hover();
-                            } else if(randomWait == 1) {
-                                int currentX = script.getMouse().getPosition().x;
 
-                                int currentY = script.getMouse().getPosition().y;
-                                script.getMouse().move(script.random(currentX - 70, currentX + 70), script.random(currentY - 70, currentY + 70));
+                                if(randomWait <= 2) {
+                                    int currentX = script.getMouse().getPosition().x;
+
+                                    int currentY = script.getMouse().getPosition().y;
+                                    script.getMouse().move(script.random(currentX - 20, currentX + 20), script.random(currentY - 20, currentY + 20));
+                                }
                             }
                         }
                         Sleep.sleepUntil(() -> !object.exists() || script.getInventory().isFull(), 50000);

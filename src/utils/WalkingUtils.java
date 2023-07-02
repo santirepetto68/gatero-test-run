@@ -24,16 +24,17 @@ public class WalkingUtils {
         }); // Replace with your desired break condition
         webWalkEvent.setEnergyThreshold(script.random(43, 100));
         webWalkEvent.setHighBreakPriority(script.random(4) == 0); // 50% chance of setting to true
-        webWalkEvent.setMinDistanceThreshold(script.random(3, 6));
-        webWalkEvent.setMiniMapDistanceThreshold(script.random(15, 25));
-        webWalkEvent.setMisclickThreshold(script.random(1, 3));
-        webWalkEvent.setMoveCameraDuringWalking(script.random(5) == 0); // 50% chance of setting to true
+        //webWalkEvent.setMinDistanceThreshold(script.random(3, 6));
+        //webWalkEvent.setMiniMapDistanceThreshold(script.random(15, 25));
+        //webWalkEvent.setMisclickThreshold(script.random(1, 3));
+
+        webWalkEvent.setMoveCameraDuringWalking(script.random(8) == 0); // chance of setting to true
         //webWalkEvent.setPathPreferenceProfile(PathPreferenceProfile.DEFAULT); // Replace with your desired profile
-        webWalkEvent.setScreenDistanceThreshold(script.random(10, 20));
+        webWalkEvent.setScreenDistanceThreshold(script.random(3, 6));
         webWalkEvent.setSourcePosition(script.myPosition());
 
-        // 50% chance it will use simple path
-        if (randomNum <= 9) {
+        // 70% chance it will use simple path due to path in falador east bank having close roads
+        if (randomNum <= 7) {
             script.log("Simple Path");
             webWalkEvent.useSimplePath();
         }

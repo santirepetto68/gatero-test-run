@@ -11,11 +11,18 @@ public class MiningUtils {
     private static final String coalOreRocks = "Coal rocks";
     private static final String mithOreRocks = "Mithril rocks";
 
-    private static final Area miningGuildArea = new Area(3025, 9730, 3059, 9750); // Mining Guild area coordinates
+    public static final Area miningGuildArea = new Area(3025, 9730, 3059, 9750); // Mining Guild area coordinates
 
     public static void mineOreInGuild(GateroTestRun script) throws InterruptedException {
+
+
         if (miningGuildArea.contains(script.myPosition())) {
-            InteractUtils.interactObject(script, coalOreRocks, "Mine", true);
+
+            boolean mainMine = InteractUtils.interactObject(script, ironOreRocks, "Mine", true);
+
+            //if(!mainMine) {
+             //   InteractUtils.interactObject(script, coalOreRocks, "Mine", true);
+            //}
 
             if (script.inventory.isFull()) {
                 script.log("mineIron.bank");
@@ -29,14 +36,6 @@ public class MiningUtils {
 
     private static void walkToMiningGuildIron(GateroTestRun script) {
         Area targetArea = new Area(3033, 9738, 3031,9738); // Target position inside the mining guild
-        script.log("mineIron.walkToMiningGuild...");
-        if (!targetArea.contains(script.myPosition())) {
-            script.getWalking().webWalk(targetArea);
-        }
-    }
-
-    private static void walkToMiningGuildCoal(GateroTestRun script) {
-        Area targetArea = new Area(3038, 9739, 3040,9740); // Target position inside the mining guild
         script.log("mineIron.walkToMiningGuild...");
         if (!targetArea.contains(script.myPosition())) {
             WalkingUtils.handleWebWalk(script, targetArea);

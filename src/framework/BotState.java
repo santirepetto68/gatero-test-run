@@ -2,6 +2,7 @@ package framework;
 
 import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.map.Position;
+import org.osbot.rs07.script.MethodProvider;
 import utils.WoodcuttingUtils;
 
 public  class BotState {
@@ -9,11 +10,11 @@ public  class BotState {
     private static  Position nextPos;
     private static  CustomMouse customMouse;
     private static  long lastFatigueTime = 0;
-    private static  int fatigueInterval;
-    private static  int fatigueDurationMin;
-    private static  int fatigueDurationMax;
-    private static  int fatigueDelayMin;
-    private static  int fatigueDelayMax;
+    private static  int fatigueInterval = MethodProvider.random(477655, 1215182);
+    private static  int fatigueDurationMin = 58474;
+    private static  int fatigueDurationMax = 238528;
+    private static  int fatigueDelayMin = 53;
+    private static  int fatigueDelayMax = 942;
     private static  boolean isFatigueActive;
     private static  long fatigueEndTime;
     private static  WoodcuttingUtils woodcuttingUtils;
