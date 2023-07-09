@@ -36,20 +36,19 @@ public class InventoryDropper {
         script.getKeyboard().releaseKey(KeyEvent.VK_SHIFT);
     }
 
-    private void dropItem(int slot) {
+    private void dropItem(int slot) throws InterruptedException {
         script.log("Dropping item: " + slot);
 
-        
+        moveMouseSmoothly(getRandomizedPointWithinItemBounds(slot));
 
+        //script.getInventory().interact(slot);
 
-        script.getInventory().interact(slot);
-
-        //script.getMouse().click(false);
+        script.getMouse().click(false);
 
     }
 
-    private Point getRandomizedPointWithinItemBounds(Item item) {
-        Rectangle bounds = inventory.getSlotBoundingBox(inventory.getSlot(item.getId()));
+    private Point getRandomizedPointWithinItemBounds(int slot) {
+        Rectangle bounds = inventory.getSlotBoundingBox(slot);
         int xOffset = randomOffset(bounds.width);
         int yOffset = randomOffset(bounds.height);
         return new Point(bounds.x + xOffset, bounds.y + yOffset);
@@ -57,8 +56,7 @@ public class InventoryDropper {
 
     private void moveMouseSmoothly(Point targetPoint) throws InterruptedException {
         Point currentPoint = script.getMouse().getPosition();
-        int steps = randomSteps(30, 50); // Increase the number of steps for smoother movement
-        int delay = randomDelay(1, 5); // Randomize the delay between steps
+        int steps = 1; // Increase the number of steps for smoother movement
 
         int deltaX = (targetPoint.x - currentPoint.x) / steps;
         int deltaY = (targetPoint.y - currentPoint.y) / steps;
@@ -69,7 +67,6 @@ public class InventoryDropper {
 
             currentPoint.translate(randomDeltaX, randomDeltaY);
             script.getMouse().move(currentPoint.x, currentPoint.y);
-            script.sleep(delay);
         }
     }
 
