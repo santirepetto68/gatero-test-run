@@ -1,8 +1,6 @@
 package main;
 
 
-import org.osbot.B;
-import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.Script;
@@ -32,6 +30,10 @@ public class GateroTestRun extends Script {
     private boolean isIdleFisher = false;
     private boolean isIdleWoodBot = false;
 
+    private boolean isLumSheepShear = false;
+
+    private boolean isEssenceMiner = false;
+
     private Paint paint;
 
     public void setPaint(){
@@ -49,7 +51,7 @@ public class GateroTestRun extends Script {
 
     @Override
     public void onMessage(Message m) {
-        if(m.getMessage().contains("You manage to mine some") || (m.getMessage().contains("You get some") && m.getMessage().contains("logs"))) {
+        if(m.getMessage().contains("You manage to mine some") || (m.getMessage().contains("You get some") && m.getMessage().contains("logs")) || m.getMessage().contains("You catch a ") || m.getMessage().contains("You get some wool") ) {
             paint.incrementOresMined();
         }
     }
@@ -64,6 +66,25 @@ public class GateroTestRun extends Script {
             if(afkModeTime - System.currentTimeMillis() >= random(720000, 900000) ) {
                 performAFK();
                 afkModeTime = System.currentTimeMillis();
+            }
+
+            // Essence Miner
+            if(isLumSheepShear) {
+                WoolFactory.shearSheepInLum(this);
+
+
+                return 0;
+            }
+
+            // Essence Miner
+            if(isEssenceMiner) {
+                boolean minerResult = RuneEssenceMiner.essenceMiner(this);
+
+                if(!minerResult) {
+                    //paint.incrementOresMined(28);
+                }
+
+                return 0;
             }
 
             // Idle fisher
@@ -82,13 +103,7 @@ public class GateroTestRun extends Script {
             }
 
 
-            if (inventory.isFull()) {
-                log("Inventory Full");
-                BankUtils.walkAndBankFalador(this);
-            } else {
-
-                MiningUtils.mineOreInGuild(this);
-            }
+            MiningUtils.mineOreInGuild(this);
             //sleep(calculateMiningDelay()); // Add a random delay before the next action
             return 0;
         } catch (Exception e) {
@@ -137,6 +152,10 @@ public class GateroTestRun extends Script {
         asyncThread.start();
         // Additional setup and configuration
 
+        log("Saving closest bank...");
+        BotState.setClosestBankArea(Bank.closestTo(currentPosition, this));
+        log("Saving closest finished...");
+
 
         paint = new Paint(this);
 
@@ -145,12 +164,12 @@ public class GateroTestRun extends Script {
             paint.setCurrentSkill(Skill.WOODCUTTING);
             BotState.setFirstPlayerPosition(currentPosition);
 
-            log("Saving closest bank...");
-            BotState.setClosestBankArea(Bank.closestTo(currentPosition, this));
-            log("Saving closest finished...");
+
         } else if (isIdleFisher){
             paint.setCurrentTask("Fishing");
             paint.setCurrentSkill(Skill.FISHING);
+        } else if (isLumSheepShear) {
+            paint.setCurrentTask("Lumbridge Shear");
         } else {
             paint.setCurrentTask("Mining");
             paint.setCurrentSkill(Skill.MINING);

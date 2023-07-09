@@ -34,7 +34,7 @@ public class WalkingUtils {
         webWalkEvent.setSourcePosition(script.myPosition());
 
         // 70% chance it will use simple path due to path in falador east bank having close roads
-        if (randomNum <= 7) {
+        if (randomNum <= 8) {
             script.log("Simple Path");
             webWalkEvent.useSimplePath();
         }
@@ -42,7 +42,21 @@ public class WalkingUtils {
         return webWalkEvent;
     }
 
+
+
+
     public static void handleWebWalk(GateroTestRun script, Area targetArea) {
+
+        WebWalkEvent webWalkEvent = createWebWalkEvent(script, targetArea);
+
+        script.execute(webWalkEvent);
+        Sleep.sleepUntil(() -> webWalkEvent.hasFinished() || webWalkEvent.hasFailed(), script.random(50000, 90000));
+
+    }
+
+    public static void handleWebWalk(GateroTestRun script, Position targetPosition) {
+
+        Area targetArea = targetPosition.getArea(15);
 
         WebWalkEvent webWalkEvent = createWebWalkEvent(script, targetArea);
 

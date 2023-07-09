@@ -7,7 +7,6 @@ import main.GateroTestRun;
 import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.map.Position;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class WoodcuttingUtils {
@@ -66,7 +65,7 @@ public class WoodcuttingUtils {
         if(closestArea.contains(script.myPosition())) {
             // Bot action
             script.log("Idle wood action");
-            InteractUtils.interactObject(script, "Yew", "Chop down", false);
+            InteractUtils.interactObject(script, "Yew", false, 8, "Chop down");
 
             return;
         }

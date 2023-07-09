@@ -11,6 +11,8 @@ public class MiningUtils {
     private static final String coalOreRocks = "Coal rocks";
     private static final String mithOreRocks = "Mithril rocks";
 
+    private static Boolean isPowerLevel = true;
+
     public static final Area miningGuildArea = new Area(3025, 9730, 3059, 9750); // Mining Guild area coordinates
 
     public static void mineOreInGuild(GateroTestRun script) throws InterruptedException {
@@ -18,17 +20,28 @@ public class MiningUtils {
 
         if (miningGuildArea.contains(script.myPosition())) {
 
-            boolean mainMine = InteractUtils.interactObject(script, ironOreRocks, "Mine", true);
-
-            //if(!mainMine) {
-             //   InteractUtils.interactObject(script, coalOreRocks, "Mine", true);
-            //}
-
             if (script.inventory.isFull()) {
-                script.log("mineIron.bank");
-                BankUtils.walkAndBankFalador(script);
-                script.sleep(script.random(500, 1500)); // Add a delay before attempting to bank again
+                if(isPowerLevel) {
+                    script.log("Dropping ores");
+                    script.inventory.dropAll();
+
+                } else {
+                    script.log("mineIron.bank");
+                    BankUtils.walkAndBankFalador(script);
+                }
+
+                script.sleep(script.random(500, 1500)); // Add a delay before attempting to bank
+
+                return;
             }
+
+            boolean mainMine = InteractUtils.interactObject(script, ironOreRocks, true, 8, "Mine");
+
+            if(!mainMine && !isPowerLevel) {
+                InteractUtils.interactObject(script, coalOreRocks, true, 8, "Mine");
+            }
+
+
         } else {
             walkToMiningGuildIron(script);
         }
@@ -60,7 +73,7 @@ public class MiningUtils {
         } else if (BotState.isFatigueActive()) {
             script.log(String.format("Fatigue mode: true - End: %d", BotState.getFatigueEndTime()));
             // Check if fatigue period has ended
-            long currentTime = System.currentTimeMillis();
+             long currentTime = System.currentTimeMillis();
             if (currentTime >= BotState.getFatigueEndTime()) {
                 // Fatigue period has ended, reset the fatigue flag
                 BotState.setFatigueActive(false);

@@ -1,11 +1,7 @@
 package utils;
 
-import framework.Bank;
 import framework.BotState;
-import framework.Sleep;
 import main.GateroTestRun;
-import org.osbot.rs07.api.map.Area;
-import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.map.constants.Banks;
 
 public class BankUtils {
@@ -27,7 +23,7 @@ public class BankUtils {
                     script.sleep(script.random(500, 2500)); // Add a delay before attempting to bank again
                 }
             } else {
-                InteractUtils.interactObject(script, "Bank booth", "Bank", false);
+                InteractUtils.interactObject(script, "Bank booth", false, 8, "Bank");
 
                 if (script.inventory.isFull()) {
                     script.log("walkAndBankFalador.Banking...");
@@ -47,7 +43,7 @@ public class BankUtils {
         WalkingUtils.handleWebWalk(script, Banks.FALADOR_EAST);
     }
 
-    public static void walkAndBankClosest(GateroTestRun script) throws InterruptedException {
+    public static void walkAndBankClosest(GateroTestRun script, int... skipIds) throws InterruptedException {
         if(BotState.getClosestBankArea().contains(script.myPosition())) {
 
             if(script.bank.isOpen()) {
@@ -57,12 +53,17 @@ public class BankUtils {
                     script.log("Banking...");
 
                     // Deposit items in batches rather than depositing all at once
-                    script.bank.depositAll();
+                    if(skipIds != null && skipIds.length > 0) {
+                        script.bank.depositAllExcept(skipIds);
+                    } else {
+                        script.bank.depositAll();
+
+                    }
                     script.sleep(script.random(500, 2500)); // Add a delay before attempting to bank again
                 }
 
             } else {
-                InteractUtils.interactObject(script, "Bank booth", "Bank", false);
+                InteractUtils.interactObject(script, "Bank booth", false, 8, "Bank");
             }
 
         } else {

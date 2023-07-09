@@ -5,27 +5,21 @@ import framework.Sleep;
 import main.GateroTestRun;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.ui.Skill;
-import org.osbot.rs07.script.MethodProvider;
-import utils.MiningUtils;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 public class Paint {
 
     private long startTime;
     private String currentTask;
-    private int oresMined;
+    private int itemsCollected;
     //private BufferedImage logo;
     private Font monospaced_16;
 
     private GateroTestRun script;
 
-    private Skill currentSkill = Skill.MINING;
+    private Skill currentSkill;
 
     public Paint( GateroTestRun script) {
         this.script = script;
@@ -43,14 +37,18 @@ public class Paint {
     }
 
     public void draw(Graphics2D g) {
-        drawMiningArea(g);
+        if(BotState.getFirstIdleWoodArea() != null) {
+            drawMiningArea(g);
+        }
+
         drawInfo(g);
         drawCursor(g);
     }
 
     private void drawMiningArea(Graphics2D g) {
+
         List<Position> positions = BotState.getFirstIdleWoodArea().getPositions();
-        
+
         g.setColor(new Color(1f, 1f, 1f, 0.1f));
         g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0f, new float[] {10.0f}, 0.0f));
         for(Position pos : positions) {
@@ -67,11 +65,20 @@ public class Paint {
     private void drawStrings(Graphics2D g) {
         g.setFont(monospaced_16);
         g.setColor(Color.WHITE);
-        g.drawString("Runtime: " + Sleep.msToString(System.currentTimeMillis() - startTime), 10, 90);
+
+        String timeRunning = Sleep.msToString(System.currentTimeMillis() - startTime);
+
+        double itemsPerHour = 0;
+        itemsPerHour = (double) itemsCollected / (Double.parseDouble(timeRunning.replace(":", "")) / 3600.0);
+
+        g.drawString("Runtime: " + timeRunning, 10, 90);
         g.drawString("Task: " + currentTask, 10, 110);
-        g.drawString("Collected: " + oresMined, 10, 130);
-        g.drawString("Skill Level: " + script.getSkills().getVirtualLevel(currentSkill) + " (+" + script.getExperienceTracker().getGainedLevels(currentSkill) + ")", 10, 150);
-        g.drawString("Exp Gained: " + script.getExperienceTracker().getGainedXP(currentSkill) + " (" + script.getExperienceTracker().getGainedXPPerHour(currentSkill) + "/hr)", 10, 170);
+
+        g.drawString("Collected: " + itemsCollected + "(" + (int) itemsPerHour + "/hr)", 10, 130);
+        if(currentSkill != null) {
+            g.drawString("Skill Level: " + script.getSkills().getVirtualLevel(currentSkill) + " (+" + script.getExperienceTracker().getGainedLevels(currentSkill) + ")", 10, 150);
+            g.drawString("Exp Gained: " + script.getExperienceTracker().getGainedXP(currentSkill) + " (" + script.getExperienceTracker().getGainedXPPerHour(currentSkill) + "/hr)", 10, 170);
+        }
     }
 
     private void drawCursor(Graphics2D g) {
@@ -97,6 +104,10 @@ public class Paint {
     }
 
     public void incrementOresMined() {
-        oresMined++;
+        itemsCollected++;
+    }
+
+    public void incrementOresMined(int ores) {
+        itemsCollected = itemsCollected + ores;
     }
 }
