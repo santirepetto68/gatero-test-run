@@ -21,9 +21,9 @@ public class BarbarianFisher {
             } else {
                 script.log("Custom dropper");
 
-                InventoryUtils inventoryUtils = new InventoryUtils(script);
+                InventoryDropper inventoryDropper = new InventoryDropper(script);
 
-                inventoryUtils.dropAllItems(true, 309,314);
+                inventoryDropper.dropAllItems(309,314);
 
             }
             Sleep.sleepUntil(() -> script.inventory.isEmptyExcept(309,314), script.random(500, 22000));

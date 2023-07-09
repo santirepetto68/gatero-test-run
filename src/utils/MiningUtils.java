@@ -23,19 +23,31 @@ public class MiningUtils {
             if (script.inventory.isFull()) {
                 if(isPowerLevel) {
                     script.log("Dropping ores");
-                    script.inventory.dropAll();
+
+                    int randomValue = script.random(1,2);
+
+                    InventoryDropper invDropper = new InventoryDropper(script);
+
+                    invDropper.dropAllItems(1275);
+
+                    if(randomValue == 1){
+
+                    } else {
+
+                        //script.inventory.dropAll();
+                    }
+
 
                 } else {
                     script.log("mineIron.bank");
                     BankUtils.walkAndBankFalador(script);
                 }
 
-                script.sleep(script.random(500, 1500)); // Add a delay before attempting to bank
 
                 return;
             }
 
-            boolean mainMine = InteractUtils.interactObject(script, ironOreRocks, true, 8, "Mine");
+            boolean mainMine = InteractUtils.interactObject(script, ironOreRocks, true, 10, "Mine");
 
             if(!mainMine && !isPowerLevel) {
                 InteractUtils.interactObject(script, coalOreRocks, true, 8, "Mine");
