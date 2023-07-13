@@ -9,7 +9,7 @@ import org.osbot.rs07.utility.Condition;
 
 public class WalkingUtils {
 
-    private static WebWalkEvent createWebWalkEvent(GateroTestRun script, Area destination) {
+    private static WebWalkEvent createWebWalkEvent(GateroTestRun script, Area destination, Integer simpleThreshold) {
         WebWalkEvent webWalkEvent = new WebWalkEvent(destination);
 
         int randomNum = script.random(1, 10);
@@ -45,20 +45,20 @@ public class WalkingUtils {
 
 
 
-    public static void handleWebWalk(GateroTestRun script, Area targetArea) {
+    public static void handleWebWalk(GateroTestRun script, Area targetArea, Integer simpleThreshold) {
 
-        WebWalkEvent webWalkEvent = createWebWalkEvent(script, targetArea);
+        WebWalkEvent webWalkEvent = createWebWalkEvent(script, targetArea, simpleThreshold);
 
         script.execute(webWalkEvent);
         Sleep.sleepUntil(() -> webWalkEvent.hasFinished() || webWalkEvent.hasFailed(), script.random(50000, 90000));
 
     }
 
-    public static void handleWebWalk(GateroTestRun script, Position targetPosition) {
+    public static void handleWebWalk(GateroTestRun script, Position targetPosition, Integer simpleThreshold) {
 
         Area targetArea = targetPosition.getArea(15);
 
-        WebWalkEvent webWalkEvent = createWebWalkEvent(script, targetArea);
+        WebWalkEvent webWalkEvent = createWebWalkEvent(script, targetArea, simpleThreshold);
 
         script.execute(webWalkEvent);
         Sleep.sleepUntil(() -> webWalkEvent.hasFinished() || webWalkEvent.hasFailed(), script.random(50000, 90000));

@@ -1,5 +1,6 @@
 package utils;
 
+import framework.BankQuantity;
 import framework.BotState;
 import main.GateroTestRun;
 import org.osbot.rs07.api.map.constants.Banks;
@@ -40,42 +41,44 @@ public class BankUtils {
 
     private static void walkToFaladorBank(GateroTestRun script) {
         script.log("walkAndBankFalador.walkToBankArea...");
-        WalkingUtils.handleWebWalk(script, Banks.FALADOR_EAST);
+        WalkingUtils.handleWebWalk(script, Banks.FALADOR_EAST, 8);
     }
 
-    public static void walkAndBankClosest(GateroTestRun script, int... skipIds) throws InterruptedException {
+    public static void walkAndBankClosest(GateroTestRun script, Integer simpleThreshold, int... skipIds) throws InterruptedException {
         if(BotState.getClosestBankArea().contains(script.myPosition())) {
 
             if(script.bank.isOpen()) {
                 script.log("Bank opened.");
+                BankQuantity bankQuantity = new BankQuantity();
 
-                while (script.inventory.isFull()) {
-                    script.log("Banking...");
+                bankQuantity.exchangeContext(script.getBot());
 
-                    // Deposit items in batches rather than depositing all at once
-                    if(skipIds != null && skipIds.length > 0) {
-                        script.bank.depositAllExcept(skipIds);
-                    } else {
-                        script.bank.depositAll();
-
-                    }
-                    script.sleep(script.random(500, 2500)); // Add a delay before attempting to bank again
+                if (bankQuantity.getQuantity() != BankQuantity.Quantity.ALL) {
+                    bankQuantity.setQuantity(BankQuantity.Quantity.ALL);
                 }
+
+                if(skipIds != null && skipIds.length > 0) {
+                    script.bank.depositAllExcept(skipIds);
+                } else {
+                    script.bank.depositAll();
+
+                }
+                script.sleep(script.random(500, 2500)); // Add a delay before attempting to bank again
 
             } else {
                 InteractUtils.interactObject(script, "Bank booth", false, 8, "Bank");
             }
 
         } else {
-            walkToClosestBank(script);
+            walkToClosestBank(script, simpleThreshold);
         }
     }
 
-    private static void walkToClosestBank(GateroTestRun script) {
+    private static void walkToClosestBank(GateroTestRun script, Integer simpleThreshold) {
         if(!BotState.getClosestBankArea().contains(script.myPosition())) {
             script.log("walkAndBankClosest.walkToClosestBank...");
 
-            WalkingUtils.handleWebWalk(script, BotState.getClosestBankArea());
+            WalkingUtils.handleWebWalk(script, BotState.getClosestBankArea(), 8);
 
         }
     }

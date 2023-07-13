@@ -52,7 +52,7 @@ public class WoodcuttingUtils {
         }
 
         if(script.inventory.isFull()) {
-            BankUtils.walkAndBankClosest(script);
+            BankUtils.walkAndBankClosest(script, 8);
 
             return;
         }

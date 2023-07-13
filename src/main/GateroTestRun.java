@@ -27,7 +27,7 @@ public class GateroTestRun extends Script {
 
     private long afkModeTime = System.currentTimeMillis();
 
-    private boolean isIdleFisher = false;
+    private boolean isIdleFisher = true;
     private boolean isIdleWoodBot = false;
 
     private boolean isLumSheepShear = false;
@@ -90,7 +90,7 @@ public class GateroTestRun extends Script {
             // Idle fisher
             if (isIdleFisher) {
 
-                BarbarianFisher.idlePowerFisher(this);
+                BarbarianFisher.idlePowerFisherBarbVill(this);
                 return 0;
             }
 

@@ -2,6 +2,7 @@ package utils;
 
 import framework.Sleep;
 import main.GateroTestRun;
+import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.NPC;
 
@@ -9,13 +10,17 @@ public class BarbarianFisher {
 
     private static int[] flyIds = {309,314};
 
-    public static boolean idlePowerFisher(GateroTestRun script) throws InterruptedException {
+    private static Area barbVillageSpot = new Area(3100, 3420, 3109, 3434);
 
-        if(script.inventory.isFull()){
+    private static boolean isCookerOn = true;
+
+    public static boolean idlePowerFisherBarbVill(GateroTestRun script) throws InterruptedException {
+
+        if(!isCookerOn && script.inventory.isFull()){
             int timeOut = script.random(500, 4000);
             int customDrop = script.random(1,10);
             Sleep.sleepUntil(() -> false, timeOut);
-            if(true){
+            if(customDrop <= 3){
                 script.inventory.dropAllExcept(flyIds);
 
             } else {
@@ -24,21 +29,37 @@ public class BarbarianFisher {
                 InventoryDropper inventoryDropper = new InventoryDropper(script);
 
                 inventoryDropper.dropAllItems(309,314);
-
             }
             Sleep.sleepUntil(() -> script.inventory.isEmptyExcept(309,314), script.random(500, 22000));
+
+
             return true;
         }
 
+        if(isCookerOn && script.inventory.isFull()){
+
+            CookingUtils cookingUtils = new CookingUtils(script);
+
+            cookingUtils.cookAllInv(flyIds);
+
+            BankUtils.walkAndBankClosest(script, 1, flyIds);
+
+            return true;
+        }
         // Check if nearest object is x tiles far
 
-        NPC closeNpc = script.getNpcs().closest(1527);
-        if(script.myPosition().distance(closeNpc.getPosition()) > 6 && !closeNpc.isVisible()) {
-            script.log("Fishing spot too far or out of view");
-            WalkingUtils.handleWebWalk(script, closeNpc.getArea(2));
+        if(!barbVillageSpot.contains(script.myPosition())){
+            WalkingUtils.handleWebWalk(script, barbVillageSpot, 8);
         }
 
-        InteractUtils.interactNpc(script, 1527, "Lure");
+
+        NPC closeNpc = script.getNpcs().closest(1527,1526);
+        if(script.myPosition().distance(closeNpc.getPosition()) > 6 && !closeNpc.isVisible()) {
+            script.log("Fishing spot too far or out of view");
+            WalkingUtils.handleWebWalk(script, closeNpc.getArea(2), 8);
+        }
+
+        InteractUtils.interactNpc(script, 1526, "Lure");
         Sleep.sleepUntil(() -> false, script.random(3000, 10000));
         return true;
     }

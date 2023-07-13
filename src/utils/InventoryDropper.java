@@ -23,22 +23,41 @@ public class InventoryDropper {
 
         script.getKeyboard().pressKey(KeyEvent.VK_SHIFT);
 
-        Item[] itemList = inventory.getItems();
+        int[] dropOrder = {
+                1, 5, 2, 6, 3, 7, 4, 8,
+                9, 13, 10, 14, 11, 15, 12, 16,
+                17, 21, 18, 22, 19, 23, 20, 24,
+                25, 26, 27, 28
+        };
+        dropItems(skipIds);
 
-        script.log("ItemList: " + itemList.toString());
+        if(!inventory.isEmptyExcept(skipIds)) {
+            inventory.dropAllExcept(skipIds);
+        }
+        script.getKeyboard().releaseKey(KeyEvent.VK_SHIFT);
+    }
 
-        int firstItemToDrop = script.inventory.getSlot(item -> !item.idContains(skipIds));
+    private void dropItems(int[] skipIds) throws InterruptedException {
+        int firstItemToDrop = 0;
+        if(skipIds.length > 0){
+            firstItemToDrop = script.inventory.getSlot(item -> !item.idContains(skipIds));
+        }
 
         for(int i = firstItemToDrop; i < Inventory.SIZE; i++){
             dropItem(i);
         }
 
-        script.getKeyboard().releaseKey(KeyEvent.VK_SHIFT);
+        script.log("Dropping finished");
+        script.sleep(script.random(250,500));
     }
 
-    private void dropItem(int slot) throws InterruptedException {
-        script.log("Dropping item: " + slot);
-
+    private void dropItem(int slot, int... skipIds) throws InterruptedException {
+        Item item = inventory.getItemInSlot(slot);
+        if(item == null || item.idContains(skipIds)){
+            script.log("Skip slot: " + slot);
+            return;
+        }
+        script.log("Dropping custom: " + slot);
         moveMouseSmoothly(getRandomizedPointWithinItemBounds(slot));
 
         //script.getInventory().interact(slot);
@@ -53,6 +72,7 @@ public class InventoryDropper {
         int yOffset = randomOffset(bounds.height);
         return new Point(bounds.x + xOffset, bounds.y + yOffset);
     }
+
 
     private void moveMouseSmoothly(Point targetPoint) throws InterruptedException {
         Point currentPoint = script.getMouse().getPosition();

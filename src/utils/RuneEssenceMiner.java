@@ -51,7 +51,7 @@ public class RuneEssenceMiner {
 
             }
 
-            BankUtils.walkAndBankClosest(script);
+            BankUtils.walkAndBankClosest(script, 8);
 
             return false;
 
@@ -72,7 +72,7 @@ public class RuneEssenceMiner {
 
             } else {
                 // Go to rune essence mine through varrock south-east rune shop
-                WalkingUtils.handleWebWalk(script, varrockRuneShop);
+                WalkingUtils.handleWebWalk(script, varrockRuneShop, 8);
 
                 InteractUtils.interactNpc(script, 2886, "Teleport");
 

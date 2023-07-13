@@ -69,7 +69,7 @@ public class Paint {
         String timeRunning = Sleep.msToString(System.currentTimeMillis() - startTime);
 
         double itemsPerHour = 0;
-        itemsPerHour = (double) itemsCollected / (Double.parseDouble(timeRunning.replace(":", "")) / 3600.0);
+        itemsPerHour = (double) itemsCollected / ((System.currentTimeMillis() - startTime) / 3600000.0);
 
         g.drawString("Runtime: " + timeRunning, 10, 90);
         g.drawString("Task: " + currentTask, 10, 110);

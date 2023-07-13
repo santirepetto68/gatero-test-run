@@ -15,7 +15,7 @@ public class WoolFactory {
         if(script.inventory.isFull()) {
             // Go bank in Lum bank
 
-            BankUtils.walkAndBankClosest(script, 1735);
+            BankUtils.walkAndBankClosest(script, 8, 1735);
 
             Sleep.sleepUntil(() -> false, script.random(500, 2500));
             return false;
@@ -26,7 +26,7 @@ public class WoolFactory {
 
             // Go to Lum sheap area
 
-            WalkingUtils.handleWebWalk(script, lumSheapArea);
+            WalkingUtils.handleWebWalk(script, lumSheapArea, 8);
 
             return false;
 

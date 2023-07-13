@@ -1,6 +1,7 @@
 package utils;
 
 import framework.BotState;
+import framework.Sleep;
 import main.GateroTestRun;
 import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.ui.Skill;
@@ -11,46 +12,52 @@ public class MiningUtils {
     private static final String coalOreRocks = "Coal rocks";
     private static final String mithOreRocks = "Mithril rocks";
 
-    private static Boolean isPowerLevel = true;
+    private static final String admanOreRocks = "Adamantite rocks";
+
+    private static Boolean isPowerLevel = false;
 
     public static final Area miningGuildArea = new Area(3025, 9730, 3059, 9750); // Mining Guild area coordinates
 
     public static void mineOreInGuild(GateroTestRun script) throws InterruptedException {
+        if (script.inventory.isFull()) {
+            if(isPowerLevel) {
+                script.log("Dropping ores");
+
+                int randomValue = script.random(1,2);
 
 
-        if (miningGuildArea.contains(script.myPosition())) {
 
-            if (script.inventory.isFull()) {
-                if(isPowerLevel) {
-                    script.log("Dropping ores");
-
-                    int randomValue = script.random(1,2);
-
+                if(randomValue == 1){
                     InventoryDropper invDropper = new InventoryDropper(script);
 
                     invDropper.dropAllItems(1275);
-
-                    if(randomValue == 1){
-
-                    } else {
-
-                        //script.inventory.dropAll();
-                    }
-
-
                 } else {
-                    script.log("mineIron.bank");
-                    BankUtils.walkAndBankFalador(script);
+
+                    script.inventory.dropAll();
                 }
 
 
-                return;
+            } else {
+                script.log("mineIron.bank");
+                BankUtils.walkAndBankFalador(script);
             }
 
-            boolean mainMine = InteractUtils.interactObject(script, ironOreRocks, true, 10, "Mine");
+
+            return;
+        }
+
+        if (miningGuildArea.contains(script.myPosition())) {
+
+
+
+            boolean mainMine = InteractUtils.interactObject(script, admanOreRocks, true, 10, "Mine");
 
             if(!mainMine && !isPowerLevel) {
-                InteractUtils.interactObject(script, coalOreRocks, true, 8, "Mine");
+                boolean secondMine = InteractUtils.interactObject(script, mithOreRocks, true, 5, "Mine");
+                if(!secondMine) {
+                    InteractUtils.interactObject(script, coalOreRocks, true, 5, "Mine");
+                }
+
             }
 
 
@@ -63,7 +70,7 @@ public class MiningUtils {
         Area targetArea = new Area(3033, 9738, 3031,9738); // Target position inside the mining guild
         script.log("mineIron.walkToMiningGuild...");
         if (!targetArea.contains(script.myPosition())) {
-            WalkingUtils.handleWebWalk(script, targetArea);
+            WalkingUtils.handleWebWalk(script, targetArea, 8);
         }
     }
 
@@ -79,7 +86,7 @@ public class MiningUtils {
         if (BotState.getLastFatigueTime() == 0) {
             long currentTime = System.currentTimeMillis();
             BotState.setLastFatigueTime(currentTime);
-            script.log(String.format("Setting fatigue mode - Start: %d", (currentTime + BotState.getFatigueInterval())));
+            script.log(String.format("Setting fatigue mode - Start: %s", Sleep.msToString(currentTime + BotState.getFatigueInterval())));
 
         // Check if it's a fatigue period
         } else if (BotState.isFatigueActive()) {

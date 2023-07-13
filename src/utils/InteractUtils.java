@@ -63,28 +63,28 @@ public class InteractUtils {
             }
             return true;
         }
+
         if (object.isVisible()) {
             EntityDestination ent = new EntityDestination(script.getBot(), object);
 
             if (ent.isVisible() || object.isVisible()) {
                 Position oldPos = object.getPosition();
                 script.log("interactObject.isVisible.interact");
-                object.hover();
                 if (object.interact(action)) {
                     // Define waiting time
                     int timeOut = recall ? MiningUtils.calculateMiningDelay(script) : script.random(2521,3478);
 
 
                     script.log(String.format("Action delay: %d", timeOut));
-                    int randomWait = script.random(1, 10);
-                    if(BotState.isFatigueActive() || randomWait <= 1) {
-                        if(randomWait <= 1) script.log("Random delay...");
+                    int recallChance = script.random(1, 10);
+                    int randomWait = script.random(1, 100);
+                    if(BotState.isFatigueActive() || randomWait <= 5) {
                         Sleep.sleepUntil(() -> false, timeOut);
                     } else {
                         Sleep.sleepUntil(() ->  !object.exists() || script.myPlayer().isAnimating(), timeOut);
                     }
                     // Recall
-                    if (script.myPlayer().isAnimating() && recall && randomWait <= recallThreshold) {
+                    if (script.myPlayer().isAnimating() && recall && recallChance <= recallThreshold) {
                         if (!script.getInventory().isFull()) {
                             // Find the next closest actionObj position
                             RS2Object nextActionObject = script.getObjects().closest(obj ->
@@ -97,10 +97,7 @@ public class InteractUtils {
                                 nextActionObject.hover();
 
                                 if(randomWait <= 2) {
-                                    int currentX = script.getMouse().getPosition().x;
-
-                                    int currentY = script.getMouse().getPosition().y;
-                                    script.getMouse().move(script.random(currentX - 20, currentX + 20), script.random(currentY - 20, currentY + 20));
+                                    endMouseMove(script);
                                 }
                             }
                         }
@@ -119,7 +116,6 @@ public class InteractUtils {
             script.log("Changing camera angle relative to target");
             Sleep.sleepUntil(() ->  false, 2000);
             if (distance(object, script) > 7) {
-                script.log("1");
                 int triedCameraIn = BotState.getTriedCamera();
                 if (triedCameraIn == 0) {
                     if (object.getPosition().getTileHeight(script.getBot()) == script.myPosition()
@@ -148,6 +144,15 @@ public class InteractUtils {
         return false;
     }
 
+    public static void endMouseMove(GateroTestRun script) {
+        int currentX = script.getMouse().getPosition().x;
+
+        int currentY = script.getMouse().getPosition().y;
+        script.getMouse().move(script.random(currentX - 20, currentX + 20), script.random(currentY - 20, currentY + 20));
+
+
+    }
+
     public static int angleToTile(final Position t, GateroTestRun script) {
         final Position me = script.myPosition();
         final int angle = (int) Math.toDegrees(Math.atan2(t.getY() - me.getY(),
@@ -161,7 +166,7 @@ public class InteractUtils {
 
     public static boolean interactNpc(GateroTestRun script, int id, String... action) {
 
-        if (script.myPlayer().isAnimating() || script.myPlayer().isMoving()) {
+        if (script.myPlayer().isAnimating()) {
             Sleep.sleepUntil(() -> false, script.random(500, 3000));
             script.log("Still actioning...");
             return false;
